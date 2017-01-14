@@ -29,6 +29,7 @@
 #include "kernel/error.h"
 #include "kernel/process.h"
 #include "interfaces/cstimer.h"
+#include "config/arch/cortexM3_stm32f2/stm32f207ig_stm3220g-eval/board_settings.h"
 #ifdef SCHED_TYPE_PRIORITY
 namespace miosix {
 
@@ -207,6 +208,7 @@ long long PriorityScheduler::IRQgetNextPreemption()
 }
 
 static void IRQsetNextPreemption(bool curIsIdleThread){
+#ifdef SCHED_PRIORITY_USE_NONPERIODIC_TIMING
     long long firstWakeupInList;
     if (sleepingList->empty())
         firstWakeupInList = LONG_LONG_MAX;
@@ -219,6 +221,10 @@ static void IRQsetNextPreemption(bool curIsIdleThread){
         nextPeriodicPreemption = std::min(firstWakeupInList, timer.IRQgetCurrentTime() + preemptionPeriodNs);
     
     timer.IRQsetNextInterrupt(nextPeriodicPreemption);
+#else
+    nextPeriodicPreemption = timer.getCurrentTime() + preemptionPeriodNs;
+    timer.IRQsetNextInterrupt(nextPeriodicPreemption);
+#endif
 }
 
 unsigned int PriorityScheduler::IRQfindNextThread()

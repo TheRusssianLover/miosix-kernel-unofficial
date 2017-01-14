@@ -40,6 +40,9 @@
 #include <cassert>
 #include "interfaces/cstimer.h"
 
+namespace miosix{
+extern bool isRaceConditionHappening;
+}
 /**
  * \internal
  * software interrupt routine.
@@ -57,7 +60,6 @@ void SVC_Handler()
 }
 
 namespace miosix_private {
-
 /**
  * \internal
  * Called by the software interrupt, yield to next thread
@@ -96,6 +98,7 @@ void ISR_yield()
         }
     }
     #endif // WITH_PROCESSES
+    miosix::isRaceConditionHappening=false;
     IRQstackOverflowCheck();
     
     #ifdef WITH_PROCESSES

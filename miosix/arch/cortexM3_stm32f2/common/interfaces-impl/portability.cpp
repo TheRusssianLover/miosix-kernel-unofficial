@@ -73,7 +73,9 @@ void TIM3_IRQHandler()
     restoreContext();
 }
 #endif //SCHED_TYPE_CONTROL_BASED
-
+//namespace miosix {
+//extern bool isRaceConditionHappening;
+//}
 namespace miosix_private {
 
 /**
@@ -114,6 +116,7 @@ void ISR_yield()
         }
     }
     #endif // WITH_PROCESSES
+//    miosix::isRaceConditionHappening=false;
     IRQstackOverflowCheck();
     
     #ifdef WITH_PROCESSES

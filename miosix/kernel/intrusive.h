@@ -667,7 +667,7 @@ class IntrusiveList; //Forward declaration
  */
 class IntrusiveListItem
 {
-private:
+public:
     IntrusiveListItem *next=nullptr;
     IntrusiveListItem *prev=nullptr;
     template<typename T>
@@ -801,7 +801,7 @@ public:
             emptyListItem.prev = item;
             return;
         }
-        item->next = static_cast<IntrusiveListItem *>(*position); //FIXME: do we need this upcast?
+        item->next = *position; //FIXME: do we need this upcast?
         item->prev = static_cast<IntrusiveListItem *>(*position)->prev;
         item->prev->next = item;
         (*position)->prev = item;
@@ -868,7 +868,7 @@ private:
     
     T *head;
     T *tail;
-    T emptyListItem;
+    T emptyListItem; // TODO - Optimization of size (what if T is a large object)
 };
 
 } //namespace miosix

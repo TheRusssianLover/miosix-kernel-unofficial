@@ -33,6 +33,7 @@
 #include "parameters.h"
 #include "kernel/kernel.h"
 #include <algorithm>
+#include "../../../../profiler.h"
 
 #ifdef SCHED_TYPE_CONTROL_BASED
 
@@ -148,6 +149,14 @@ public:
     static unsigned int IRQfindNextThread();
     
     static long long IRQgetNextPreemption();
+    
+    //For benchmarking, allow to manually change alfa
+    static void disableAutomaticAlfaChange();
+    static void enableAutomaticAlfaChange();
+    static void PKsetAlfa(Thread *t, float alfa) { t->schedData.alfaPrime=alfa;}
+    static float PKgetAlfa(Thread *t) { return t->schedData.alfaPrime; }
+    static void PKsetTheta(Thread *t, unsigned theta) { t->schedData.theta=theta;}
+    static void fixmeManualBurst(float burstLength);
 
 private:
     
@@ -191,6 +200,8 @@ private:
     ///\internal set to true by IRQrecalculateAlfa() to signal that
     ///due to a change in alfa the regulator needs to be reinitialized
     static bool reinitRegulator;
+    
+    static volatile bool disableAutoAlfaChange;
 };
 
 } //namespace miosix

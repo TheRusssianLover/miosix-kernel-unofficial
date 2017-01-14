@@ -77,6 +77,8 @@ static unsigned char interruptDisableNesting=0;
 
 static int deepSleepCounter = 0;
 
+bool isRaceConditionHappening=false;
+
 #ifdef WITH_PROCESSES
 
 /// The proc field of the Thread class for kernel threads points to this object
@@ -265,8 +267,6 @@ void IRQaddToSleepingList(SleepData *x)
         while (it != sleepingList->end() && (*it)->wakeup_time < x->wakeup_time ) ++it;
         sleepingList->insert(it,x);
     }
-    //if (sleepingList->front()->wakeup_time < ContextSwitchTimer::instance().IRQgetCurrentTime())
-    //    ContextSwitchTimer::instance().IRQsetNextInterrupt(sleepingList->front()->wakeup_time);
 }
 
 /**
@@ -377,15 +377,15 @@ void Thread::nanoSleepUntil(long long absoluteTime)
     //TODO: The absolute time should be rounded w.r.t. the timer resolution
     //This function does not care about setting the wakeup_time in the past
     //as it should be based on the policy taken into account by IRQwakeThreads
-    
+    SleepData d;
     //pauseKernel() here is not enough since even if the kernel is stopped
     //the tick isr will wake threads, modifying the sleepingList
     {
         FastInterruptDisableLock lock;
-        SleepData d; 
         d.p=const_cast<Thread*>(cur);
         d.wakeup_time = absoluteTime;
         IRQaddToSleepingList(&d);//Also sets SLEEP_FLAG
+        isRaceConditionHappening=true;
     }
     // NOTE: There is no need to synchronize the timer (calling IRQsetNextInterrupt)
     // with the list at this point. Because, Thread::yield will make a supervisor

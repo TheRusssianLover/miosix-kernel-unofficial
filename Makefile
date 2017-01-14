@@ -17,8 +17,11 @@ SUBDIRS := $(KPATH)
 ## List here your source files (both .s, .c and .cpp)
 ##
 SRC :=                                  \
-main.cpp transceiver.cpp SPI.cpp
-#testsuite.cpp
+hartstone.cpp                           \
+profiler.cpp                            \
+main-hartstone-roundsweep.cpp
+#main-soft-realtime2.cpp
+
 
 ##
 ## List here additional static libraries with relative path
